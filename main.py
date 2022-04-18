@@ -3,11 +3,13 @@ import os
 import tracemalloc
 import connection_for_db
 import time
+import random
 
 from config import token
 from vkbottle import BaseStateGroup, Keyboard, OpenLink,Text, GroupEventType, GroupTypes, KeyboardButtonColor, EMPTY_KEYBOARD
 from vkbottle.bot import Bot, Message
 
+list_words = ["Хорошо выглядишь!", "А ты не забыл сделать что-то важное?", "Думаю, сегодня будет продуктивный день!", "Улыбнись, а то грустишь!"]
 
 bot = Bot(token=token)
 
@@ -30,13 +32,12 @@ class MenuState(BaseStateGroup):
     state_reg_2 = 16
     state_reg_final = 17
 
+
 async def number():
     current_year = time.strftime('%Y')
     first_number = 2018
     current_number = int(current_year)-first_number
     return int(current_number)
-
-
 
 
 #----------------START
@@ -47,10 +48,12 @@ async def start_handler(message: Message):
     first = user[0].first_name
     last =user[0].last_name
     name = first + ' ' + last
+    result = await message.ctx_api.users.get(message.from_id, fields=["bdate"])
+    bdate = str(result[0].bdate)
     f = 'https://vk.com/id'
     link = f + str(id)
     num = await number()
-    temp = await connection_for_db.bd_registration(id, name, link, num)
+    temp = await connection_for_db.bd_registration(id, name, link, num, bdate)
     if (temp == 1):
         await message.answer(
             f"👋Привет, {user[0].first_name}! \n \n Ты попал в группу амбассадоров! Я буду помогать тебе с амбассадорством.\n \n Прежде чем пройти дальше, давай закончим регистрацию",
@@ -117,6 +120,33 @@ async def start_handler(message: Message, msg):
             f"Попробуй еще раз")
     await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_final)
 
+
+
+#----------------BDATE
+# async def bdate_handler():
+#     now_d = time.strftime("%d")
+#     now_m = time.strftime("%m")
+#     bdate_d = int(str(await connection_for_db.bd_date(now_d)).replace("'",'').replace(',','').replace(')','').replace('(','').replace('[','').replace(']',''))
+#     bdate_m = int(str(await connection_for_db.bd_month(now_m)).replace("'", '').replace(',','').replace(')','').replace('(','').replace('[','').replace(']',''))
+#     name = str(await connection_for_db.bd_name(bdate_d)).replace("'", '').replace(',','').replace(')','').replace('(','').replace('[','').replace(']','')
+#     date_o = int((int(now_d) - int(bdate_d)) * (-1))
+#     print(bdate_m, bdate_d, date_o)
+#     if (int(bdate_m) == int(now_m)):
+#         if (date_o == 7 or date_o == 6 or date_o == 5):
+#             return(f"Через {date_o} дней День Рождение у {name}")
+#         elif (date_o == 4 or date_o == 3 or date_o == 2):
+#             return(f"Через {date_o} дня День Рождение у {name}")
+#         elif (date_o == 1):
+#             return(f"Через {date_o} день День Рождение у {name}")
+#         elif (date_o == 0):
+#             return(f"Сегодня День Рождение у {name}")
+#         elif (date_o > 8):
+#             temp = random.choice(list_words)
+#             return(f"{temp}")
+#     else:
+#         temp = random.choice(list_words)
+#         return (f"{temp}")
+
 #----------------MENU
 @bot.on.private_message(state = [
     MenuState.state_start,
@@ -133,6 +163,7 @@ async def start_handler(message: Message, msg):
     MenuState.state_offline],
     payload=[{"cmd": "back_menu"},{"cmd": "back_1"},{"cmd": "next_1"}, {"cmd": "final_reg"}]) #Много статусов
 async def menu_handler(message: Message):
+    # bdate = await bdate_handler()
     await message.answer(
         f"----------МЕНЮ---------- \n \n Вкладка амбассадоры – можешь получить информацию о всех амбассадорах, которые есть и были.\n \n Вкладка мероприятия – можешь получить информацию по проведению мероприятий, получить гайд или просто вдохновиться идеями",
         keyboard=(
@@ -383,6 +414,7 @@ async def number_item_handler(message: Message):
                    ),
         )
     await bot.state_dispenser.set(message.peer_id, MenuState.state_all_event)
+
 
 
 #----------------SORRY

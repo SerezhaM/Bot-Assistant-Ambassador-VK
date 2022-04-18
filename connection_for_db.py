@@ -5,7 +5,6 @@ from tabulate import tabulate
 from psycopg2 import Error
 from config import username, pwd, hostname, db
 
-
 #tabulate.WIDE_CHARS_MODE = True
 tabulate.PRESERVE_WHITESPACE = True
 
@@ -18,18 +17,19 @@ try:
                                   port="5432",
                                   database=db)
 
-    async def bd_registration(user_id, name, link, num):
+    async def bd_registration(user_id, name, link, num, bdate):
         cursor2 = connection.cursor()
         id = user_id
         nm = name
         lk = link
         num_ = num
+        date = bdate
         cursor2.execute("SELECT user_id FROM registration WHERE user_id = '%s'" % (id))
         check = cursor2.fetchone()
         if (check is None):
             cursor2.execute("INSERT INTO registration (user_id, date_reg) VALUES (%s, now())" %(id))
             connection.commit()
-            cursor2.execute("INSERT INTO ambassador (user_id, name, link_user, number) VALUES (%s, %s, %s, %s)", (id, nm, lk, num_))
+            cursor2.execute("INSERT INTO ambassador (user_id, name, link_user, number, bdate) VALUES (%s, %s, %s, %s, %s)", (id, nm, lk, num_, date))
             connection.commit()
             return 1
         else:
@@ -119,7 +119,32 @@ try:
         else:
             return 999999999999
 
+    async def bd_month(bddate):
+        month = bddate
+        cursor2 = connection.cursor()
+        cursor2.execute("SELECT * FROM (SELECT substring(bdate from 4 for 6) AS Month FROM ambassador)t WHERE Month = '%s'" %(month))
+        table1 = cursor2.fetchall()
+        print(table1)
+        return table1
 
+    async def bd_date(bdate):
+        date = bdate
+        cursor2 = connection.cursor()
+        cursor2.execute("SELECT * FROM (SELECT substring(bdate from 1 for 2) AS Date FROM ambassador)t WHERE Date >= '%s'" % (date))
+        table2 = cursor2.fetchone()
+        if table2 is not None:
+            cursor2.execute("SELECT * FROM (SELECT substring(bdate from 1 for 2) AS Date FROM ambassador)t WHERE Date >= '%s'" % (date))
+            table3 = cursor2.fetchone()
+            return table3
+        else:
+            return 99
+
+    async def bd_name(bdate_1):
+        date = str(bdate_1)
+        cursor2 = connection.cursor()
+        cursor2.execute("SELECT name FROM (SELECT name, substring(bdate from 1 for 2) AS Date FROM ambassador)t WHERE Date = '%s'" %(date))
+        table = cursor2.fetchall()
+        return table
 
     # Курсор для выполнения операций с базой данных
     #cursor = connection.cursor()
