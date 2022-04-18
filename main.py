@@ -127,6 +127,7 @@ async def start_handler(message: Message, msg):
     MenuState.state_number,
     MenuState.state_category,
     MenuState.state_type,
+    MenuState.state_type_db,
     MenuState.state_all_event,
     MenuState.state_online,
     MenuState.state_offline],
