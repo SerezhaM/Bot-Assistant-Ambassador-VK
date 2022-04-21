@@ -79,7 +79,14 @@ try:
 
     async def bd_all_event():
         cursor2 = connection.cursor()
-        cursor2.execute("SELECT event_name, event_category, et.type_info, guid_id FROM event LEFT JOIN event_type as et ON et.type_code = event.event_type")
+        cursor2.execute("SELECT event_name, event_category, et.type_info, guid.link_guid FROM event LEFT JOIN event_type as et ON et.type_code = event.event_type LEFT JOIN guid ON guid.guid_id = event.guid_id")
+        table = cursor2.fetchall()
+        temp_table = (tabulate(table, tablefmt="jira"))
+        return temp_table
+
+    async def bd_all_guid():
+        cursor2 = connection.cursor()
+        cursor2.execute("SELECT link_guid FROM guid")
         table = cursor2.fetchall()
         temp_table = (tabulate(table, tablefmt="jira"))
         return temp_table

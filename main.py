@@ -8,8 +8,7 @@ import random
 from config import token
 from vkbottle import BaseStateGroup, Keyboard, OpenLink,Text, GroupEventType, GroupTypes, KeyboardButtonColor, EMPTY_KEYBOARD
 from vkbottle.bot import Bot, Message
-
-list_words = ["Хорошо выглядишь!", "А ты не забыл сделать что-то важное?", "Думаю, сегодня будет продуктивный день!", "Улыбнись, а то грустишь!"]
+from list import list_words
 
 bot = Bot(token=token)
 
@@ -31,7 +30,7 @@ class MenuState(BaseStateGroup):
     state_reg_1 = 15
     state_reg_2 = 16
     state_reg_final = 17
-
+    state_all_guid = 18
 
 async def number():
     current_year = time.strftime('%Y')
@@ -160,16 +159,19 @@ async def start_handler(message: Message, msg):
     MenuState.state_type_db,
     MenuState.state_all_event,
     MenuState.state_online,
-    MenuState.state_offline],
+    MenuState.state_offline,
+    MenuState.state_all_guid],
     payload=[{"cmd": "back_menu"},{"cmd": "back_1"},{"cmd": "next_1"}, {"cmd": "final_reg"}]) #Много статусов
 async def menu_handler(message: Message):
-    # bdate = await bdate_handler()
+    list = random.choice(list_words)
     await message.answer(
-        f"----------МЕНЮ---------- \n \n Вкладка амбассадоры – можешь получить информацию о всех амбассадорах, которые есть и были.\n \n Вкладка мероприятия – можешь получить информацию по проведению мероприятий, получить гайд или просто вдохновиться идеями",
+        f"----------МЕНЮ---------- \n \n {list} \n \n Вкладка амбассадоры – можешь получить информацию о всех амбассадорах, которые есть и были.\n \n Вкладка мероприятия – можешь получить информацию по проведению мероприятий, получить гайд или просто вдохновиться идеями",
         keyboard=(
             Keyboard()
             .add(Text("Амбассадоры", {"cmd": "ambo"}))
             .add(Text("Мероприятия", {"cmd": "event"}))
+            .row()
+            .add(OpenLink("https://vk.com/app6013442_-207473867?form_id=1#form_id=1", "Помощь"), color=KeyboardButtonColor.PRIMARY)
             .get_json()
         ),
     )
@@ -283,15 +285,18 @@ async def number_item_handler(message: Message, msg):
 @bot.on.private_message(state=[
     MenuState.state_menu,
     MenuState.state_category,
-    MenuState.state_all_event],
-    payload=[{"cmd": "event"},{"cmd": "back_1"},{"cmd": "back_all"},{"cmd": "back_category"}])
+    MenuState.state_all_event,
+    MenuState.state_all_guid],
+    payload=[{"cmd": "event"},{"cmd": "back_1"},{"cmd": "back_all"},{"cmd": "back_category"},{"cmd": "back_all_g"}])
 async def event_handler(message: Message):
     await message.answer(
          "Это раздел с мероприятиями. Если у тебя закончались идеи, что проводить, то смело бери их отсюда. У каждого мероприятия есть свой гайд :3",
          keyboard=(
             Keyboard()
-            .add(Text("Показать все меро", {"cmd": "all_event"}))
+            .add(Text("Показать все мероприятия", {"cmd": "all_event"}))
             .add(Text("Категория", {"cmd": "category"}))
+            .row()
+            .add(Text("Показать все доступные гайды", {"cmd": "all_guid"}))
             .row()
             .add(Text("Назад", {"cmd": "back_1"}),color=KeyboardButtonColor.PRIMARY)
         ),
@@ -414,6 +419,24 @@ async def number_item_handler(message: Message):
                    ),
         )
     await bot.state_dispenser.set(message.peer_id, MenuState.state_all_event)
+
+
+
+#----------------ALL_EVENT
+@bot.on.private_message(state=[
+    MenuState.state_event],
+    payload={"cmd": "all_guid"})
+async def number_item_handler(message: Message):
+    table_all_event = await connection_for_db.bd_all_guid()
+    await message.answer(
+        f"{table_all_event}",
+        keyboard = (
+                   Keyboard()
+                       .add(Text("Меню", {"cmd": "back_menu"}),color=KeyboardButtonColor.PRIMARY)
+                       .add(Text("Назад", {"cmd": "back_all_g"}),color=KeyboardButtonColor.PRIMARY)
+                   ),
+        )
+    await bot.state_dispenser.set(message.peer_id, MenuState.state_all_guid)
 
 
 
