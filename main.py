@@ -6,7 +6,7 @@ import time
 import random
 
 from config import token
-from vkbottle import BaseStateGroup, Keyboard, OpenLink,Text, GroupEventType, GroupTypes, KeyboardButtonColor, EMPTY_KEYBOARD
+from vkbottle import BaseStateGroup, Keyboard, OpenLink,Text, GroupEventType, GroupTypes, KeyboardButtonColor, EMPTY_KEYBOARD, VKAPIError
 from vkbottle.bot import Bot, Message
 from list import list_words
 
@@ -40,6 +40,19 @@ async def number():
     first_number = 2018
     current_number = int(current_year)-first_number
     return int(current_number)
+
+
+@bot.on.raw_event(GroupEventType.GROUP_JOIN, dataclass=GroupTypes.GroupJoin)
+async def group_join_handler(event: GroupTypes.GroupJoin):
+    try:
+        await bot.api.messages.send(
+            peer_id=event.object.user_id,
+            message="👋Привет! \n \n Говорят, что в этой группе самые лучшие люди, которые стали амбассадорами ВК! \n \n Пришли мне любое сообщение и мы начнем)",
+            random_id=0,
+            keyboard=(EMPTY_KEYBOARD)
+        )
+    except VKAPIError(901):
+        pass
 
 
 #----------------START
