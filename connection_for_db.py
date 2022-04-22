@@ -17,13 +17,21 @@ try:
                                   port="5432",
                                   database=db)
 
-    async def bd_registration(user_id, name, link, num, bdate):
+    async def bd_last_visit(id, text):
+        cursor2 = connection.cursor()
+        u_id = id
+        text1 = text
+        cursor2.execute("UPDATE registration SET last_visit = now(), name_menu = '%s' WHERE user_id = %s" %(text1, u_id))
+        connection.commit()
+
+    async def bd_registration(user_id, name, link, num, bdate, city_1):
         cursor2 = connection.cursor()
         id = user_id
         nm = name
         lk = link
         num_ = num
         date = bdate
+        city_0 = city_1
         cursor2.execute("SELECT user_id FROM registration WHERE user_id = '%s'" % (id))
         check = cursor2.fetchone()
         if (check is None):
@@ -31,9 +39,23 @@ try:
             connection.commit()
             cursor2.execute("INSERT INTO ambassador (user_id, name, link_user, number, bdate) VALUES (%s, %s, %s, %s, %s)", (id, nm, lk, num_, date))
             connection.commit()
-            return 1
+            if city_0 is not None:
+                cursor2.execute("UPDATE ambassador SET city = %s WHERE user_id = %s",(city_0, id))
+                connection.commit()
+                return 1
+            else:
+                return 2
         else:
             return 0
+
+
+    async def bd_registration_uni(id_1, msg):
+        cursor2 = connection.cursor()
+        id = id_1
+        uni = msg
+        cursor2.execute("UPDATE ambassador SET university = %s WHERE user_id = %s", (uni, id))
+        connection.commit()
+        return 1
 
     async def bd_registration_continue(userid, msg):
         cursor2 = connection.cursor()

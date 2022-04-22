@@ -31,6 +31,9 @@ class MenuState(BaseStateGroup):
     state_reg_2 = 16
     state_reg_final = 17
     state_all_guid = 18
+    state_reg_uni = 19
+    state_reg_final_uni = 20
+
 
 async def number():
     current_year = time.strftime('%Y')
@@ -49,17 +52,28 @@ async def start_handler(message: Message):
     name = first + ' ' + last
     result = await message.ctx_api.users.get(message.from_id, fields=["bdate"])
     bdate = str(result[0].bdate)
+    city = await bot.api.users.get(message.from_id, fields=["city"])
+    city_1 = str(city[0].city).replace("=", '').replace("'", '').partition("e")[2]
     f = 'https://vk.com/id'
     link = f + str(id)
     num = await number()
-    temp = await connection_for_db.bd_registration(id, name, link, num, bdate)
+    temp = await connection_for_db.bd_registration(id, name, link, num, bdate, city_1)
     if (temp == 1):
         await message.answer(
             f"👋Привет, {user[0].first_name}! \n \n Ты попал в группу амбассадоров! Я буду помогать тебе с амбассадорством.\n \n Прежде чем пройти дальше, давай закончим регистрацию",
             keyboard=(
                 Keyboard()
-                .add(Text("Закончить регистрацию", {"cmd": "next_reg"}))
+                .add(Text("Закончить регистрацию", {"cmd": "next_reg_1"}))
                 .get_json()
+            ),
+        )
+    elif (temp == 2):
+        await message.answer(
+            f"👋Привет, {user[0].first_name}! \n \n Ты попал в группу амбассадоров! Я буду помогать тебе с амбассадорством.\n \n Прежде чем пройти дальше, давай закончим регистрацию",
+            keyboard=(
+                Keyboard()
+                    .add(Text("Закончить регистрацию", {"cmd": "next_reg"}))
+                    .get_json()
             ),
         )
     elif (temp == 0):
@@ -72,6 +86,38 @@ async def start_handler(message: Message):
                       ),
         )
     await bot.state_dispenser.set(message.peer_id, MenuState.state_start)
+
+
+
+@bot.on.private_message(state =
+    MenuState.state_start,
+    payload={"cmd": "next_reg_1"})
+async def start_handler(message: Message):
+    await message.answer(
+        f"Введи название своего университета",
+        keyboard=(EMPTY_KEYBOARD))
+    await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_uni)
+
+@bot.on.private_message(state =
+    MenuState.state_reg_uni,
+    text='<msg>')
+async def start_handler(message: Message, msg):
+    user = await bot.api.users.get(message.from_id)
+    id = user[0].id
+    temp = await connection_for_db.bd_registration_uni(id, msg)
+    if (temp == 1):
+        await message.answer(
+            f"Университет записан! \n \n Регистрация оконченна",
+            keyboard=(
+                Keyboard()
+                    .add(Text("Амбассадор ВК, Welcome", {"cmd": "final_reg"}))
+                    .get_json()
+            ),)
+    else:
+        await message.answer(
+            f"Попробуй еще раз")
+    await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_final_uni)
+
 
 
 @bot.on.private_message(state=[
@@ -150,6 +196,7 @@ async def start_handler(message: Message, msg):
 @bot.on.private_message(state = [
     MenuState.state_start,
     MenuState.state_reg_final,
+    MenuState.state_reg_final_uni,
     MenuState.state_amba,
     MenuState.state_event,
     MenuState.state_city,
@@ -163,6 +210,8 @@ async def start_handler(message: Message, msg):
     MenuState.state_all_guid],
     payload=[{"cmd": "back_menu"},{"cmd": "back_1"},{"cmd": "next_1"}, {"cmd": "final_reg"}]) #Много статусов
 async def menu_handler(message: Message):
+    text = 'Menu'
+    await bd_handler(message, text)
     list = random.choice(list_words)
     await message.answer(
         f"----------МЕНЮ---------- \n \n {list} \n \n Вкладка амбассадоры – можешь получить информацию о всех амбассадорах, которые есть и были.\n \n Вкладка мероприятия – можешь получить информацию по проведению мероприятий, получить гайд или просто вдохновиться идеями",
@@ -188,6 +237,8 @@ async def menu_handler(message: Message):
     MenuState.state_city_db],
     payload=[{"cmd": "ambo"},{"cmd": "back_3"}, {"cmd": "back_1"}, {"cmd": "back_number"},{"cmd": "back_city"}])
 async def amba_handler(message: Message):
+    text = 'Ambassador'
+    await bd_handler(message, text)
     await message.answer(
          "Это раздел с амбассадорами. Здесь ты можешь узнать о всех амбассадорах, посмотреть кто находится в твоем городе и найти помощников на мероприятия!",
          keyboard=(
@@ -207,6 +258,8 @@ async def amba_handler(message: Message):
     MenuState.state_amba],
     payload={"cmd": "city"})
 async def city_handler(message: Message):
+    text = 'City'
+    await bd_handler(message, text)
     await message.answer(
          "Введи город",
          keyboard=(
@@ -244,6 +297,8 @@ async def city_item_handler(message: Message, msg):
     MenuState.state_amba],
     payload={"cmd": "number"})
 async def number_handler(message: Message):
+    text = 'Number'
+    await bd_handler(message, text)
     await message.answer(
          "Введи число набора",
          keyboard=(
@@ -289,6 +344,8 @@ async def number_item_handler(message: Message, msg):
     MenuState.state_all_guid],
     payload=[{"cmd": "event"},{"cmd": "back_1"},{"cmd": "back_all"},{"cmd": "back_category"},{"cmd": "back_all_g"}])
 async def event_handler(message: Message):
+    text = 'Event'
+    await bd_handler(message, text)
     await message.answer(
          "Это раздел с мероприятиями. Если у тебя закончались идеи, что проводить, то смело бери их отсюда. У каждого мероприятия есть свой гайд :3",
          keyboard=(
@@ -334,6 +391,8 @@ async def number_handler(message: Message):
     MenuState.state_online],
     payload = {"cmd": "online"})
 async def number_item_handler(message: Message):
+    text = 'Online'
+    await bd_handler(message, text)
     table_online = await connection_for_db.bd_online()
     await message.answer(
         f"{table_online}",
@@ -350,6 +409,8 @@ async def number_item_handler(message: Message):
     MenuState.state_offline],
     payload = {"cmd": "offline"})
 async def number_item_handler(message: Message):
+    text = 'Offline'
+    await bd_handler(message, text)
     table_offline = await connection_for_db.bd_offline()
     await message.answer(
         f"{table_offline}",
@@ -366,6 +427,8 @@ async def number_item_handler(message: Message):
     MenuState.state_type_db],
     payload={"cmd": "type"})
 async def city_handler(message: Message):
+    text = 'Type'
+    await bd_handler(message, text)
     table_type = await connection_for_db.bd_type()
     await message.answer(
          f"Введи номер типа мероприятия \n \n {table_type}",
@@ -409,6 +472,8 @@ async def city_item_handler(message: Message, msg):
     MenuState.state_event],
     payload={"cmd": "all_event"})
 async def number_item_handler(message: Message):
+    text = 'All Event'
+    await bd_handler(message, text)
     table_all_event = await connection_for_db.bd_all_event()
     await message.answer(
         f"{table_all_event}",
@@ -422,11 +487,13 @@ async def number_item_handler(message: Message):
 
 
 
-#----------------ALL_EVENT
+#----------------ALL_GUID
 @bot.on.private_message(state=[
     MenuState.state_event],
     payload={"cmd": "all_guid"})
 async def number_item_handler(message: Message):
+    text = 'All Guid'
+    await bd_handler(message, text)
     table_all_event = await connection_for_db.bd_all_guid()
     await message.answer(
         f"{table_all_event}",
@@ -438,6 +505,11 @@ async def number_item_handler(message: Message):
         )
     await bot.state_dispenser.set(message.peer_id, MenuState.state_all_guid)
 
+
+async def bd_handler(message, text):
+    user = await bot.api.users.get(message.from_id)
+    id = user[0].id
+    await connection_for_db.bd_last_visit(id, text)
 
 
 #----------------SORRY
