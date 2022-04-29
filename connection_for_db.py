@@ -73,13 +73,21 @@ try:
         connection.commit()
         return 1
 
+    async def bd_registration_continue_info(userid, msg):
+        cursor2 = connection.cursor()
+        id = userid
+        uni = msg
+        cursor2.execute("UPDATE ambassador SET info = %s WHERE user_id = %s", (uni, id))
+        connection.commit()
+        return 1
+
     async def bd_city(temp_msg):
         cursor2 = connection.cursor()
         text_db = temp_msg
         cursor2.execute("SELECT city FROM ambassador WHERE city = '%s'" %(text_db))
         table = cursor2.fetchone()
         if (table is not None):
-            cursor2.execute("SELECT name, link_user, city, university FROM ambassador WHERE city = '%s'" %(text_db))
+            cursor2.execute("SELECT name, link_user, city, university, info FROM ambassador WHERE city = '%s'" %(text_db))
             table2 = cursor2.fetchall()
             temp_table = (tabulate(table2, tablefmt="jira"))
             return temp_table
@@ -92,7 +100,7 @@ try:
         cursor2.execute("SELECT number FROM ambassador WHERE number = '%s'" %(text_db))
         table = cursor2.fetchone()
         if (table is not None):
-            cursor2.execute("SELECT name, link_user, number FROM ambassador WHERE number = '%s'" % (text_db))
+            cursor2.execute("SELECT name, link_user, number, info FROM ambassador WHERE number = '%s'" % (text_db))
             table2 = cursor2.fetchall()
             temp_table = (tabulate(table2, tablefmt="jira"))
             return temp_table

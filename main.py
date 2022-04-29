@@ -33,6 +33,10 @@ class MenuState(BaseStateGroup):
     state_all_guid = 18
     state_reg_uni = 19
     state_reg_final_uni = 20
+    state_reg_final_uni_1 = 21
+    state_reg_final_all = 22
+    state_reg_final_1 = 23
+
 
 
 async def number():
@@ -107,7 +111,7 @@ async def start_handler(message: Message):
     payload={"cmd": "next_reg_1"})
 async def start_handler(message: Message):
     await message.answer(
-        f"Введи название своего университета",
+        f"Вводи данные аккуратно. Исправить их будет нельзя! \n \n Введи название своего университета",
         keyboard=(EMPTY_KEYBOARD))
     await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_uni)
 
@@ -120,16 +124,11 @@ async def start_handler(message: Message, msg):
     temp = await connection_for_db.bd_registration_uni(id, msg)
     if (temp == 1):
         await message.answer(
-            f"Университет записан! \n \n Регистрация оконченна",
-            keyboard=(
-                Keyboard()
-                    .add(Text("Амбассадор ВК, Welcome", {"cmd": "final_reg"}))
-                    .get_json()
-            ),)
+            f"Университет записан! \n \n Теперь введи информацию о себе, чтобы другие амбассадоры могли понимать, что ты можешь сделать. Например: Я дизайнер, работаю в фотошопе и могу нарисовать все что угодно")
     else:
         await message.answer(
             f"Попробуй еще раз")
-    await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_final_uni)
+    await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_final_uni_1)
 
 
 
@@ -167,7 +166,24 @@ async def start_handler(message: Message, msg):
     temp = await connection_for_db.bd_registration_continue_2(id, msg)
     if (temp == 1):
         await message.answer(
-            f"Университет записан! \n \n Регистрация оконченна",
+            f"Университет записан! \n \n РТеперь введи информацию о себе, чтобы другие амбассадоры могли понимать, что ты можешь сделать. Например: Я дизайнер, работаю в фотошопе и могу нарисовать все что угодно",)
+    else:
+        await message.answer(
+            f"Попробуй еще раз")
+    await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_final_1)
+
+
+@bot.on.private_message(state = [
+    MenuState.state_reg_final_uni_1,
+    MenuState.state_reg_final_1],
+    text='<msg>')
+async def start_handler(message: Message, msg):
+    user = await bot.api.users.get(message.from_id)
+    id = user[0].id
+    temp = await connection_for_db.bd_registration_continue_info(id, msg)
+    if (temp == 1):
+        await message.answer(
+            f"Информация успешно записана! \n \n Регистрация оконченна",
             keyboard=(
                 Keyboard()
                     .add(Text("Амбассадор ВК, Welcome", {"cmd": "final_reg"}))
@@ -176,10 +192,7 @@ async def start_handler(message: Message, msg):
     else:
         await message.answer(
             f"Попробуй еще раз")
-    await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_final)
-
-
-
+    await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_final_all)
 #----------------BDATE
 # async def bdate_handler():
 #     now_d = time.strftime("%d")
@@ -208,8 +221,7 @@ async def start_handler(message: Message, msg):
 #----------------MENU
 @bot.on.private_message(state = [
     MenuState.state_start,
-    MenuState.state_reg_final,
-    MenuState.state_reg_final_uni,
+    MenuState.state_reg_final_all,
     MenuState.state_amba,
     MenuState.state_event,
     MenuState.state_city,
