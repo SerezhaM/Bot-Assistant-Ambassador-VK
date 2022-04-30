@@ -37,14 +37,9 @@ try:
         if (check is None):
             cursor2.execute("INSERT INTO registration (user_id, date_reg) VALUES (%s, now())" %(id))
             connection.commit()
-            cursor2.execute("INSERT INTO ambassador (user_id, name, link_user, number, bdate) VALUES (%s, %s, %s, %s, %s)", (id, nm, lk, num_, date))
+            cursor2.execute("INSERT INTO ambassador (user_id, name, link_user, number, city, bdate) VALUES (%s, %s, %s, %s, %s, %s)", (id, nm, lk, num_, city_0, date))
             connection.commit()
-            if city_0 is not None:
-                cursor2.execute("UPDATE ambassador SET city = %s WHERE user_id = %s",(city_0, id))
-                connection.commit()
-                return 1
-            else:
-                return 2
+            return 1
         else:
             return 0
 
@@ -137,10 +132,9 @@ try:
 
     async def bd_type():
         cursor2 = connection.cursor()
-        cursor2.execute("SELECT type_code, type_info FROM event_type")
-        colname = '№', 'Тип мероприятия'
+        cursor2.execute("SELECT type_info FROM event_type order by type_code")
         table = cursor2.fetchall()
-        temp_table = (tabulate(table, headers=colname, tablefmt="jira"))
+        temp_table = (tabulate(table, tablefmt="simple"))
         return temp_table
 
     async def bd_user_type(temp_msg):

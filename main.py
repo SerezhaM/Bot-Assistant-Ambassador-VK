@@ -31,11 +31,7 @@ class MenuState(BaseStateGroup):
     state_reg_2 = 16
     state_reg_final = 17
     state_all_guid = 18
-    state_reg_uni = 19
-    state_reg_final_uni = 20
-    state_reg_final_uni_1 = 21
-    state_reg_final_all = 22
-    state_reg_final_1 = 23
+    state_reg_final_all = 19
 
 
 
@@ -80,15 +76,6 @@ async def start_handler(message: Message):
             f"👋Привет, {user[0].first_name}! \n \n Ты попал в группу амбассадоров! Я буду помогать тебе с амбассадорством.\n \n Прежде чем пройти дальше, давай закончим регистрацию",
             keyboard=(
                 Keyboard()
-                .add(Text("Закончить регистрацию", {"cmd": "next_reg_1"}))
-                .get_json()
-            ),
-        )
-    elif (temp == 2):
-        await message.answer(
-            f"👋Привет, {user[0].first_name}! \n \n Ты попал в группу амбассадоров! Я буду помогать тебе с амбассадорством.\n \n Прежде чем пройти дальше, давай закончим регистрацию",
-            keyboard=(
-                Keyboard()
                     .add(Text("Закончить регистрацию", {"cmd": "next_reg"}))
                     .get_json()
             ),
@@ -103,32 +90,6 @@ async def start_handler(message: Message):
                       ),
         )
     await bot.state_dispenser.set(message.peer_id, MenuState.state_start)
-
-
-
-@bot.on.private_message(state =
-    MenuState.state_start,
-    payload={"cmd": "next_reg_1"})
-async def start_handler(message: Message):
-    await message.answer(
-        f"Вводи данные аккуратно. Исправить их будет нельзя! \n \n Введи название своего университета",
-        keyboard=(EMPTY_KEYBOARD))
-    await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_uni)
-
-@bot.on.private_message(state =
-    MenuState.state_reg_uni,
-    text='<msg>')
-async def start_handler(message: Message, msg):
-    user = await bot.api.users.get(message.from_id)
-    id = user[0].id
-    temp = await connection_for_db.bd_registration_uni(id, msg)
-    if (temp == 1):
-        await message.answer(
-            f"Университет записан! \n \n Теперь введи информацию о себе, чтобы другие амбассадоры могли понимать, что ты можешь сделать. Например: Я дизайнер, работаю в фотошопе и могу нарисовать все что угодно")
-    else:
-        await message.answer(
-            f"Попробуй еще раз")
-    await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_final_uni_1)
 
 
 
@@ -166,16 +127,15 @@ async def start_handler(message: Message, msg):
     temp = await connection_for_db.bd_registration_continue_2(id, msg)
     if (temp == 1):
         await message.answer(
-            f"Университет записан! \n \n РТеперь введи информацию о себе, чтобы другие амбассадоры могли понимать, что ты можешь сделать. Например: Я дизайнер, работаю в фотошопе и могу нарисовать все что угодно",)
+            f"Университет записан! \n \n Теперь введи информацию о себе, чтобы другие амбассадоры могли понимать, что ты можешь сделать. Например: Я дизайнер, работаю в фотошопе и могу нарисовать все что угодно",)
     else:
         await message.answer(
             f"Попробуй еще раз")
-    await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_final_1)
+    await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_final)
 
 
 @bot.on.private_message(state = [
-    MenuState.state_reg_final_uni_1,
-    MenuState.state_reg_final_1],
+    MenuState.state_reg_final],
     text='<msg>')
 async def start_handler(message: Message, msg):
     user = await bot.api.users.get(message.from_id)
@@ -193,30 +153,8 @@ async def start_handler(message: Message, msg):
         await message.answer(
             f"Попробуй еще раз")
     await bot.state_dispenser.set(message.peer_id, MenuState.state_reg_final_all)
-#----------------BDATE
-# async def bdate_handler():
-#     now_d = time.strftime("%d")
-#     now_m = time.strftime("%m")
-#     bdate_d = int(str(await connection_for_db.bd_date(now_d)).replace("'",'').replace(',','').replace(')','').replace('(','').replace('[','').replace(']',''))
-#     bdate_m = int(str(await connection_for_db.bd_month(now_m)).replace("'", '').replace(',','').replace(')','').replace('(','').replace('[','').replace(']',''))
-#     name = str(await connection_for_db.bd_name(bdate_d)).replace("'", '').replace(',','').replace(')','').replace('(','').replace('[','').replace(']','')
-#     date_o = int((int(now_d) - int(bdate_d)) * (-1))
-#     print(bdate_m, bdate_d, date_o)
-#     if (int(bdate_m) == int(now_m)):
-#         if (date_o == 7 or date_o == 6 or date_o == 5):
-#             return(f"Через {date_o} дней День Рождение у {name}")
-#         elif (date_o == 4 or date_o == 3 or date_o == 2):
-#             return(f"Через {date_o} дня День Рождение у {name}")
-#         elif (date_o == 1):
-#             return(f"Через {date_o} день День Рождение у {name}")
-#         elif (date_o == 0):
-#             return(f"Сегодня День Рождение у {name}")
-#         elif (date_o > 8):
-#             temp = random.choice(list_words)
-#             return(f"{temp}")
-#     else:
-#         temp = random.choice(list_words)
-#         return (f"{temp}")
+
+
 
 #----------------MENU
 @bot.on.private_message(state = [
@@ -225,7 +163,9 @@ async def start_handler(message: Message, msg):
     MenuState.state_amba,
     MenuState.state_event,
     MenuState.state_city,
+    MenuState.state_city_db,
     MenuState.state_number,
+    MenuState.state_number_db,
     MenuState.state_category,
     MenuState.state_type,
     MenuState.state_type_db,
@@ -239,7 +179,7 @@ async def menu_handler(message: Message):
     await bd_handler(message, text)
     list = random.choice(list_words)
     await message.answer(
-        f"----------МЕНЮ---------- \n \n {list} \n \n Вкладка амбассадоры – можешь получить информацию о всех амбассадорах, которые есть и были.\n \n Вкладка мероприятия – можешь получить информацию по проведению мероприятий, получить гайд или просто вдохновиться идеями",
+        f"----------МЕНЮ---------- \n \n {list} \n \n Вкладка амбассадоры – можешь получить информацию о всех амбассадорах, которые есть и были.\n \n Вкладка мероприятия – можешь получить информацию по проведению мероприятий, получить гайд или просто вдохновиться идеями.",
         keyboard=(
             Keyboard()
             .add(Text("Амбассадоры", {"cmd": "ambo"}))
@@ -375,10 +315,10 @@ async def event_handler(message: Message):
          "Это раздел с мероприятиями. Если у тебя закончались идеи, что проводить, то смело бери их отсюда. У каждого мероприятия есть свой гайд :3",
          keyboard=(
             Keyboard()
-            .add(Text("Показать все мероприятия", {"cmd": "all_event"}))
+            .add(Text("Все мероприятия", {"cmd": "all_event"}))
             .add(Text("Категория", {"cmd": "category"}))
             .row()
-            .add(Text("Показать все доступные гайды", {"cmd": "all_guid"}))
+            .add(Text("Все гайды", {"cmd": "all_guid"}))
             .row()
             .add(Text("Назад", {"cmd": "back_1"}),color=KeyboardButtonColor.PRIMARY)
         ),
@@ -397,7 +337,7 @@ async def event_handler(message: Message):
     payload=[{"cmd": "category"},{"cmd": "back_1"},{"cmd": "back_type"},{"cmd": "back_online"},{"cmd": "back_offline"}, {"cmd": "back_user_type"}])
 async def number_handler(message: Message):
     await message.answer(
-         "Это раздел с категориями мероприятий. Тут ты сможешь выбрать любое мероприятие и получить информацию о нем. \n \n Введи номер, чтобы получить список мероприятий: \n 1)Онлайн \n 2)Офлайн ",
+         "Это раздел с категориями мероприятий. Тут ты сможешь выбрать любое мероприятие и получить информацию о нем. \n \n Можно получить мероприятия по типу формата: \n 🟣Онлайн \n 🟣Офлайн \n \n Или перейти во вкладку тип и выбрать конкретное.",
          keyboard=(
             Keyboard()
             .add(Text("Онлайн", {"cmd": "online"}))
@@ -432,7 +372,7 @@ async def number_item_handler(message: Message):
 @bot.on.private_message(state=[
     MenuState.state_category,
     MenuState.state_offline],
-    payload = {"cmd": "offline"})
+    payload = {"cmd": "offline"}, text = "2")
 async def number_item_handler(message: Message):
     text = 'Offline'
     await bd_handler(message, text)
@@ -541,5 +481,35 @@ async def bd_handler(message, text):
 @bot.on.private_message()
 async def sorry_handler(_):
     return "Похоже ты написал что-то, воспользуйся лучше кнопками",
+
+
+
+
+#----------------BDATE
+# async def bdate_handler():
+#     now_d = time.strftime("%d")
+#     now_m = time.strftime("%m")
+#     bdate_d = int(str(await connection_for_db.bd_date(now_d)).replace("'",'').replace(',','').replace(')','').replace('(','').replace('[','').replace(']',''))
+#     bdate_m = int(str(await connection_for_db.bd_month(now_m)).replace("'", '').replace(',','').replace(')','').replace('(','').replace('[','').replace(']',''))
+#     name = str(await connection_for_db.bd_name(bdate_d)).replace("'", '').replace(',','').replace(')','').replace('(','').replace('[','').replace(']','')
+#     date_o = int((int(now_d) - int(bdate_d)) * (-1))
+#     print(bdate_m, bdate_d, date_o)
+#     if (int(bdate_m) == int(now_m)):
+#         if (date_o == 7 or date_o == 6 or date_o == 5):
+#             return(f"Через {date_o} дней День Рождение у {name}")
+#         elif (date_o == 4 or date_o == 3 or date_o == 2):
+#             return(f"Через {date_o} дня День Рождение у {name}")
+#         elif (date_o == 1):
+#             return(f"Через {date_o} день День Рождение у {name}")
+#         elif (date_o == 0):
+#             return(f"Сегодня День Рождение у {name}")
+#         elif (date_o > 8):
+#             temp = random.choice(list_words)
+#             return(f"{temp}")
+#     else:
+#         temp = random.choice(list_words)
+#         return (f"{temp}")
+
+
 
 bot.run_forever()
