@@ -55,6 +55,7 @@ async def group_join_handler(event: GroupTypes.GroupJoin):
         pass
 
 
+
 #----------------START
 @bot.on.private_message(state = None)
 async def start_handler(message: Message):
@@ -63,6 +64,8 @@ async def start_handler(message: Message):
     first = user[0].first_name
     last =user[0].last_name
     name = first + ' ' + last
+    name_gem = '🔹' + first + ' ' + last
+    link_name = '@' + 'id' + str(id) + '(' + name_gem + ')'
     result = await message.ctx_api.users.get(message.from_id, fields=["bdate"])
     bdate = str(result[0].bdate)
     city = await bot.api.users.get(message.from_id, fields=["city"])
@@ -70,7 +73,7 @@ async def start_handler(message: Message):
     f = 'https://vk.com/id'
     link = f + str(id)
     num = await number()
-    temp = await connection_for_db.bd_registration(id, name, link, num, bdate, city_1)
+    temp = await connection_for_db.bd_registration(id, name, link_name, link, num, bdate, city_1)
     if (temp == 1):
         await message.answer(
             f"👋Привет, {user[0].first_name}! \n \n Ты попал в группу амбассадоров! Я буду помогать тебе с амбассадорством.\n \n Прежде чем пройти дальше, давай закончим регистрацию",
@@ -179,7 +182,7 @@ async def menu_handler(message: Message):
     await bd_handler(message, text)
     list = random.choice(list_words)
     await message.answer(
-        f"----------МЕНЮ---------- \n \n {list} \n \n Вкладка амбассадоры – можешь получить информацию о всех амбассадорах, которые есть и были.\n \n Вкладка мероприятия – можешь получить информацию по проведению мероприятий, получить гайд или просто вдохновиться идеями.",
+        f"🔻–––––––––МЕНЮ–––––––––🔻 \n \n {list} \n \n ➤ Вкладка амбассадоры: \n Здесь хранится информация о \n всех амбассадорах.\n \n ➤ Вкладка мероприятия:\n Здесь хранится информация о \n мероприятиях и о гайдах.\n \n 🔺––––––––––––––––––––––––🔺",
         keyboard=(
             Keyboard()
             .add(Text("Амбассадоры", {"cmd": "ambo"}))
@@ -337,7 +340,7 @@ async def event_handler(message: Message):
     payload=[{"cmd": "category"},{"cmd": "back_1"},{"cmd": "back_type"},{"cmd": "back_online"},{"cmd": "back_offline"}, {"cmd": "back_user_type"}])
 async def number_handler(message: Message):
     await message.answer(
-         "Это раздел с категориями мероприятий. Тут ты сможешь выбрать любое мероприятие и получить информацию о нем. \n \n Можно получить мероприятия по типу формата: \n 🟣Онлайн \n 🟣Офлайн \n \n Или перейти во вкладку тип и выбрать конкретное.",
+         "Это раздел с категориями мероприятий. Тут ты сможешь выбрать любое мероприятие и получить информацию о нем. \n \n Можно получить мероприятия по типу формата: \n 🔸Онлайн \n 🔹Офлайн \n \n Или перейти во вкладку тип и выбрать конкретное.",
          keyboard=(
             Keyboard()
             .add(Text("Онлайн", {"cmd": "online"}))
@@ -372,7 +375,7 @@ async def number_item_handler(message: Message):
 @bot.on.private_message(state=[
     MenuState.state_category,
     MenuState.state_offline],
-    payload = {"cmd": "offline"}, text = "2")
+    payload = {"cmd": "offline"})
 async def number_item_handler(message: Message):
     text = 'Offline'
     await bd_handler(message, text)

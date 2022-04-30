@@ -24,11 +24,12 @@ try:
         cursor2.execute("UPDATE registration SET last_visit = now(), name_menu = '%s' WHERE user_id = %s" %(text1, u_id))
         connection.commit()
 
-    async def bd_registration(user_id, name, link, num, bdate, city_1):
+    async def bd_registration(user_id, name, link_name, link, num, bdate, city_1):
         cursor2 = connection.cursor()
         id = user_id
         nm = name
         lk = link
+        ln = link_name
         num_ = num
         date = bdate
         city_0 = city_1
@@ -37,7 +38,7 @@ try:
         if (check is None):
             cursor2.execute("INSERT INTO registration (user_id, date_reg) VALUES (%s, now())" %(id))
             connection.commit()
-            cursor2.execute("INSERT INTO ambassador (user_id, name, link_user, number, city, bdate) VALUES (%s, %s, %s, %s, %s, %s)", (id, nm, lk, num_, city_0, date))
+            cursor2.execute("INSERT INTO ambassador (user_id, name, link_name, link_user, number, city, bdate) VALUES (%s, %s, %s, %s, %s, %s, %s)", (id, nm, ln, lk, num_, city_0, date))
             connection.commit()
             return 1
         else:
@@ -82,9 +83,9 @@ try:
         cursor2.execute("SELECT city FROM ambassador WHERE city = '%s'" %(text_db))
         table = cursor2.fetchone()
         if (table is not None):
-            cursor2.execute("SELECT name, link_user, city, university, info FROM ambassador WHERE city = '%s'" %(text_db))
+            cursor2.execute("SELECT link_name, city, university, info FROM ambassador WHERE city = '%s' order by name" %(text_db))
             table2 = cursor2.fetchall()
-            temp_table = (tabulate(table2, tablefmt="jira"))
+            temp_table = (tabulate(table2, tablefmt="presto"))
             return temp_table
         else:
             return 9999999999
@@ -95,39 +96,39 @@ try:
         cursor2.execute("SELECT number FROM ambassador WHERE number = '%s'" %(text_db))
         table = cursor2.fetchone()
         if (table is not None):
-            cursor2.execute("SELECT name, link_user, number, info FROM ambassador WHERE number = '%s'" % (text_db))
+            cursor2.execute("SELECT link_name, number, info FROM ambassador WHERE number = '%s' order by name" % (text_db))
             table2 = cursor2.fetchall()
-            temp_table = (tabulate(table2, tablefmt="jira"))
+            temp_table = (tabulate(table2, tablefmt="presto"))
             return temp_table
         else:
             return 9999999999
 
     async def bd_all_event():
         cursor2 = connection.cursor()
-        cursor2.execute("SELECT event_name, event_category, et.type_info, guid.link_guid FROM event LEFT JOIN event_type as et ON et.type_code = event.event_type LEFT JOIN guid ON guid.guid_id = event.guid_id")
+        cursor2.execute("SELECT event_name, event_category, guid.link_guid FROM event LEFT JOIN event_type as et ON et.type_code = event.event_type LEFT JOIN guid ON guid.guid_id = event.guid_id order by event_name")
         table = cursor2.fetchall()
-        temp_table = (tabulate(table, tablefmt="jira"))
+        temp_table = (tabulate(table, tablefmt="presto"))
         return temp_table
 
     async def bd_all_guid():
         cursor2 = connection.cursor()
         cursor2.execute("SELECT link_guid FROM guid")
         table = cursor2.fetchall()
-        temp_table = (tabulate(table, tablefmt="jira"))
+        temp_table = (tabulate(table, tablefmt="presto"))
         return temp_table
 
     async def bd_online():
         cursor2 = connection.cursor()
-        cursor2.execute("SELECT ev.event_name, guid.link_guid FROM event AS ev LEFT JOIN guid ON guid.guid_id = ev.guid_id WHERE event_category = 'online'")
+        cursor2.execute("SELECT ev.event_name, guid.link_guid FROM event AS ev LEFT JOIN guid ON guid.guid_id = ev.guid_id WHERE event_category = 'online' order by ev.event_name")
         table = cursor2.fetchall()
-        temp_table = (tabulate(table, tablefmt="jira"))
+        temp_table = (tabulate(table, tablefmt="presto"))
         return temp_table
 
     async def bd_offline():
         cursor2 = connection.cursor()
-        cursor2.execute("SELECT ev.event_name, guid.link_guid FROM event AS ev LEFT JOIN guid ON guid.guid_id = ev.guid_id WHERE event_category = 'offline'")
+        cursor2.execute("SELECT ev.event_name, guid.link_guid FROM event AS ev LEFT JOIN guid ON guid.guid_id = ev.guid_id WHERE event_category = 'offline' order by ev.event_name")
         table = cursor2.fetchall()
-        temp_table = (tabulate(table, tablefmt="jira"))
+        temp_table = (tabulate(table, tablefmt="presto"))
         return temp_table
 
     async def bd_type():
@@ -143,9 +144,9 @@ try:
         cursor2.execute("SELECT event_type FROM event WHERE event_type = '%s'" % (text_db))
         table = cursor2.fetchone()
         if (table is not None):
-            cursor2.execute("SELECT ev.event_name, ev.event_category, ev.event_text, guid.link_guid FROM event AS ev LEFT JOIN guid ON guid.guid_id = ev.guid_id WHERE event_type = '%s'" %(text_db))
+            cursor2.execute("SELECT ev.event_name, ev.event_category, ev.event_text, guid.link_guid FROM event AS ev LEFT JOIN guid ON guid.guid_id = ev.guid_id WHERE event_type = '%s' order by ev.event_name" %(text_db))
             table = cursor2.fetchall()
-            temp_table = (tabulate(table, tablefmt="jira"))
+            temp_table = (tabulate(table, tablefmt="presto"))
             return temp_table
         else:
             return 999999999999
