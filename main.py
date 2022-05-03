@@ -32,6 +32,7 @@ class MenuState(BaseStateGroup):
     state_reg_final = 17
     state_all_guid = 18
     state_reg_final_all = 19
+    state_online_offline = 20
 
 
 
@@ -175,6 +176,7 @@ async def start_handler(message: Message, msg):
     MenuState.state_all_event,
     MenuState.state_online,
     MenuState.state_offline,
+    MenuState.state_online_offline,
     MenuState.state_all_guid],
     payload=[{"cmd": "back_menu"},{"cmd": "back_1"},{"cmd": "next_1"}, {"cmd": "final_reg"}]) #Много статусов
 async def menu_handler(message: Message):
@@ -336,15 +338,18 @@ async def event_handler(message: Message):
     MenuState.state_type,
     MenuState.state_online,
     MenuState.state_offline,
+MenuState.state_online_offline,
     MenuState.state_type_db],
-    payload=[{"cmd": "category"},{"cmd": "back_1"},{"cmd": "back_type"},{"cmd": "back_online"},{"cmd": "back_offline"}, {"cmd": "back_user_type"}])
+    payload=[{"cmd": "category"}, {"cmd": "back_1"}, {"cmd": "back_type"}, {"cmd": "back_online"}, {"cmd": "back_offline"}, {"cmd": "back_online/offline"}, {"cmd": "back_user_type"}])
 async def number_handler(message: Message):
     await message.answer(
-         "Это раздел с категориями мероприятий. Тут ты сможешь выбрать любое мероприятие и получить информацию о нем. \n \n Можно получить мероприятия по типу формата: \n 🔸Онлайн \n 🔹Офлайн \n \n Или перейти во вкладку тип и выбрать конкретное.",
+         "Это раздел с категориями мероприятий. Тут ты сможешь выбрать любое мероприятие и получить информацию о нем. \n \n Можно получить мероприятия по типу формата: \n 🔶Онлайн \n 🔷Офлайн \n ♦️Любое \n \n Или перейти во вкладку тип и выбрать конкретное.",
          keyboard=(
             Keyboard()
             .add(Text("Онлайн", {"cmd": "online"}))
             .add(Text("Офлайн", {"cmd": "offline"}))
+            .add(Text("Любое", {"cmd": "online/offline"}))
+            .row()
             .add(Text("Тип", {"cmd": "type"}))
             .row()
             .add(Text("Меню", {"cmd": "back_menu"}),color=KeyboardButtonColor.PRIMARY)
@@ -388,6 +393,24 @@ async def number_item_handler(message: Message):
                 .add(Text("Назад", {"cmd": "back_offline"}),color=KeyboardButtonColor.PRIMARY)
         ), )
     await bot.state_dispenser.set(message.peer_id, MenuState.state_offline)
+
+#----------------ONLINE/OFFLINE
+@bot.on.private_message(state=[
+    MenuState.state_category,
+    MenuState.state_online],
+    payload = {"cmd": "online/offline"})
+async def number_item_handler(message: Message):
+    text = 'online/offline'
+    await bd_handler(message, text)
+    table_online = await connection_for_db.bd_online_offline()
+    await message.answer(
+        f"{table_online}",
+        keyboard=(
+            Keyboard()
+                .add(Text("Меню", {"cmd": "back_menu"}),color=KeyboardButtonColor.PRIMARY)
+                .add(Text("Назад", {"cmd": "back_online/offline"}),color=KeyboardButtonColor.PRIMARY)
+        ), )
+    await bot.state_dispenser.set(message.peer_id, MenuState.state_online_offline)
 
 #----------------TYPE
 @bot.on.private_message(state=[
