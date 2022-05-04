@@ -86,7 +86,7 @@ async def start_handler(message: Message):
         )
     elif (temp == 0):
         await message.answer(
-            "Кто-то перезагрузил бота, но уже снова все работает",
+            "Бот был перезагружен, но уже снова все работает",
             keyboard = (
                           Keyboard()
                               .add(Text("Меню", {"cmd": "next_1"}),color=KeyboardButtonColor.POSITIVE)
@@ -510,7 +510,7 @@ async def sorry_handler(_):
 
 
 
-
+bot.run_forever()
 #----------------BDATE
 # async def bdate_handler():
 #     now_d = time.strftime("%d")
@@ -535,7 +535,3 @@ async def sorry_handler(_):
 #     else:
 #         temp = random.choice(list_words)
 #         return (f"{temp}")
-
-
-
-bot.run_forever()

@@ -35,7 +35,9 @@ try:
         city_0 = city_1
         cursor2.execute("SELECT user_id FROM registration WHERE user_id = '%s'" % (id))
         check = cursor2.fetchone()
-        if (check is None):
+        cursor2.execute("SELECT user_id FROM ambassador WHERE user_id = '%s'" % (id))
+        check_2 = cursor2.fetchone()
+        if (check is None or check_2 is None):
             cursor2.execute("INSERT INTO registration (user_id, date_reg) VALUES (%s, now())" %(id))
             connection.commit()
             cursor2.execute("INSERT INTO ambassador (user_id, name, link_name, link_user, number, city, bdate) VALUES (%s, %s, %s, %s, %s, %s, %s)", (id, nm, ln, lk, num_, city_0, date))
