@@ -43,17 +43,17 @@ async def number():
     return int(current_number)
 
 
-@bot.on.raw_event(GroupEventType.GROUP_JOIN, dataclass=GroupTypes.GroupJoin)
-async def group_join_handler(event: GroupTypes.GroupJoin):
-    try:
-        await bot.api.messages.send(
-            peer_id=event.object.user_id,
-            message="👋Привет! \n \n Говорят, что в этой группе самые лучшие люди, которые стали амбассадорами ВК! \n \n Пришли мне любое сообщение и мы начнем)",
-            random_id=0,
-            keyboard=(EMPTY_KEYBOARD)
-        )
-    except VKAPIError(901):
-        pass
+# @bot.on.raw_event(GroupEventType.GROUP_JOIN, dataclass=GroupTypes.GroupJoin)
+# async def group_join_handler(event: GroupTypes.GroupJoin):
+#     try:
+#         await bot.api.messages.send(
+#             peer_id=event.object.user_id,
+#             message="👋Привет! \n \n Говорят, что в этой группе самые лучшие люди, которые стали амбассадорами ВК! \n \n Пришли мне любое сообщение и мы начнем)",
+#             random_id=0,
+#             keyboard=(EMPTY_KEYBOARD)
+#         )
+#     except VKAPIError(901):
+#         pass
 
 
 
