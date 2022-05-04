@@ -36,6 +36,7 @@ class MenuState(BaseStateGroup):
 
 
 
+
 async def number():
     current_year = time.strftime('%Y')
     first_number = 2018
