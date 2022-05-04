@@ -24,6 +24,16 @@ try:
         cursor2.execute("UPDATE registration SET last_visit = now(), name_menu = '%s' WHERE user_id = %s" %(text1, u_id))
         connection.commit()
 
+
+    async def bd_check_id(id):
+        cursor2 = connection.cursor()
+        u_id = id
+        cursor2.execute("SELECT user_id FROM ambassador WHERE user_id = %s" % (u_id))
+        table = cursor2.fetchone()
+        return table
+
+
+
     async def bd_registration(user_id, name, link_name, link, num, bdate, city_1):
         cursor2 = connection.cursor()
         id = user_id
