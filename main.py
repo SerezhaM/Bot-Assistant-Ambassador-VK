@@ -5,14 +5,12 @@ import connection_for_db
 import time
 import random
 
-
 from config import token
 from vkbottle import BaseStateGroup, Keyboard, OpenLink,Text, GroupEventType, GroupTypes, KeyboardButtonColor, EMPTY_KEYBOARD, VKAPIError
 from vkbottle.bot import Bot, Message
 from list import list_words
-from flask import Flask
 
-app = Flask(__name__)
+tracemalloc.start()
 
 bot = Bot(token=token)
 
