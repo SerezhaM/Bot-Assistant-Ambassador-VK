@@ -39,10 +39,6 @@ class MenuState(BaseStateGroup):
     state_online_offline = 20
 
 
-if __name__ == '__main__':
-    app.debug = True
-    app.run(host="127.0.0.1:12158", port=int(os.environ.get('PORT', 12158)))
-
 async def check_month(id):
     current_month = time.strftime('%m')
     tempt_ = await connection_for_db.bd_check_id(id)
