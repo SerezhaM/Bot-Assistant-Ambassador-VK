@@ -45,11 +45,12 @@ if __name__ == '__main__':
     app.debug = True
 
 async def check_month(id):
+    t_id = id
     current_month = time.strftime('%m')
-    tempt_ = await connection_for_db.bd_check_id(id)
+    tempt_ = await connection_for_db.bd_check_id(t_id)
     try:
         tempt_id = int(str(tempt_).replace("(", '').replace(")", '').replace(",", ''))
-        if int(id) == tempt_id:
+        if int(t_id) == tempt_id:
             return 1
         else:
             return 0
