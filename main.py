@@ -38,12 +38,17 @@ class MenuState(BaseStateGroup):
 async def check_month(id):
     current_month = time.strftime('%m')
     tempt_ = await connection_for_db.bd_check_id(id)
-    tempt_id = int(str(tempt_).replace("(", '').replace(")", '').replace(",", ''))
-    print(tempt_id, id)
-    if current_month < '06' or current_month > '08' or int(id) == tempt_id:
-        return (1)
-    else:
-        return(0)
+    try:
+        tempt_id = int(str(tempt_).replace("(", '').replace(")", '').replace(",", ''))
+        if int(id) == tempt_id:
+            return 1
+        else:
+            return 0
+    except:
+        if current_month < '06' or current_month > '08':
+            return 1
+        else:
+            return 0
 
 async def number():
     current_year = time.strftime('%Y')

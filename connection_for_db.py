@@ -27,8 +27,8 @@ try:
 
     async def bd_check_id(id):
         cursor2 = connection.cursor()
-        u_id = id
-        cursor2.execute("SELECT user_id FROM ambassador WHERE user_id = %s" % (u_id))
+        t_id = id
+        cursor2.execute("SELECT user_id FROM ambassador WHERE user_id = %s" % (t_id))
         table = cursor2.fetchone()
         return table
 
@@ -43,18 +43,28 @@ try:
         num_ = num
         date = bdate
         city_0 = city_1
-        cursor2.execute("SELECT user_id FROM registration WHERE user_id = '%s'" % (id))
-        check = cursor2.fetchone()
         cursor2.execute("SELECT user_id FROM ambassador WHERE user_id = '%s'" % (id))
-        check_2 = cursor2.fetchone()
-        if (check is None or check_2 is None):
-            cursor2.execute("INSERT INTO registration (user_id, date_reg) VALUES (%s, now())" %(id))
-            connection.commit()
+        check = cursor2.fetchone()
+        if (check is None):
             cursor2.execute("INSERT INTO ambassador (user_id, name, link_name, link_user, number, city, bdate) VALUES (%s, %s, %s, %s, %s, %s, %s)", (id, nm, ln, lk, num_, city_0, date))
+            connection.commit()
+            cursor2.execute("INSERT INTO registration (user_id, date_reg) VALUES (%s, now())" % (id))
             connection.commit()
             return 1
         else:
-            return 0
+            cursor2.execute("SELECT city FROM ambassador WHERE user_id = '%s'" % (id))
+            city = cursor2.fetchone()
+            check_city = str(city).replace("(", '').replace(")", '').replace(",", '').replace("'", '')
+            cursor2.execute("SELECT university FROM ambassador WHERE user_id = '%s'" % (id))
+            uni = cursor2.fetchone()
+            check_uni = str(uni).replace("(", '').replace(")", '').replace(",", '').replace("'", '')
+            cursor2.execute("SELECT info FROM ambassador WHERE user_id = '%s'" % (id))
+            info = cursor2.fetchone()
+            check_info = str(info).replace("(", '').replace(")", '').replace(",", '').replace("'", '')
+            if check_city == 'None' or check_uni == '0' or check_info == 'None':
+                return 1
+            else:
+                return 0
 
 
     async def bd_registration_uni(id_1, msg):
