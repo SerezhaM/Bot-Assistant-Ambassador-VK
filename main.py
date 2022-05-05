@@ -5,12 +5,16 @@ import connection_for_db
 import time
 import random
 
+
 from config import token
 from vkbottle import BaseStateGroup, Keyboard, OpenLink,Text, GroupEventType, GroupTypes, KeyboardButtonColor, EMPTY_KEYBOARD, VKAPIError
 from vkbottle.bot import Bot, Message
 from list import list_words
+from flask import Flask
 
 tracemalloc.start()
+
+app = Flask(__name__)
 
 bot = Bot(token=token)
 
@@ -36,6 +40,10 @@ class MenuState(BaseStateGroup):
     state_reg_final_all = 19
     state_online_offline = 20
 
+
+if __name__ == '__main__':
+    app.debug = True
+    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
 
 async def check_month(id):
     current_month = time.strftime('%m')
