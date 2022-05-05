@@ -180,7 +180,7 @@ async def start_handler(message: Message, msg):
             f"Информация успешно записана! \n \n Регистрация оконченна",
             keyboard=(
                 Keyboard()
-                    .add(Text("Амбассадор ВК, Welcome", {"cmd": "final_reg"}))
+                    .add(Text("Амбассадор VK, Welcome", {"cmd": "final_reg"}))
                     .get_json()
             ),)
     else:
