@@ -207,6 +207,22 @@ try:
         table = cursor2.fetchall()
         return table
 
+
+    async def bd_token(id, msg):
+        id_u = id
+        token = msg
+        cursor2 = connection.cursor()
+        cursor2.execute("INSERT INTO group_t (user_id, token_group, token_time) VALUES ('%s', '%s', now())" % (id_u, token))
+        connection.commit()
+
+
+    def bd_token_take():
+        cursor2 = connection.cursor()
+        cursor2.execute("SELECT token_group FROM group_t order by max(token_time) over(partition by token_time) desc limit 1")
+        table = cursor2.fetchall()
+        # print("BD: ", table)
+        return table
+
     # Курсор для выполнения операций с базой данных
     #cursor = connection.cursor()
     # Распечатать сведения о PostgreSQL

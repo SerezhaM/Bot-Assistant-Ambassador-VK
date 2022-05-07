@@ -1,12 +1,12 @@
 import vkbottle
 import os
 import tracemalloc
+
 import connection_for_db
 import time
 import random
 
 
-from config import token
 from vkbottle import BaseStateGroup, Keyboard, OpenLink,Text, GroupEventType, GroupTypes, KeyboardButtonColor, EMPTY_KEYBOARD, VKAPIError
 from vkbottle.bot import Bot, Message
 from list import list_words
@@ -16,7 +16,8 @@ tracemalloc.start()
 
 app = Flask(__name__)
 
-bot = Bot(token=token)
+bot = Bot(token=str(connection_for_db.bd_token_take()).replace("'", '').replace("(", '').replace(")", '').replace(",", '').replace("[", '').replace("]", ''))
+
 
 class MenuState(BaseStateGroup):
     state_start = 1
@@ -39,6 +40,7 @@ class MenuState(BaseStateGroup):
     state_all_guid = 18
     state_reg_final_all = 19
     state_online_offline = 20
+    state_token = 21
 
 
 if __name__ == '__main__':
@@ -207,6 +209,7 @@ async def start_handler(message: Message, msg):
     MenuState.state_online,
     MenuState.state_offline,
     MenuState.state_online_offline,
+    MenuState.state_token,
     MenuState.state_all_guid],
     payload=[{"cmd": "back_menu"},{"cmd": "back_1"},{"cmd": "next_1"}, {"cmd": "final_reg"}]) #Много статусов
 async def menu_handler(message: Message):
@@ -357,6 +360,48 @@ async def number_item_handler(message: Message, msg):
             await message.answer(
             "Ой, похоже ты ввел не число :(")
         await bot.state_dispenser.set(message.peer_id, MenuState.state_number_db)
+
+
+#----------------TOKEN
+@bot.on.private_message(text="178bto(y9o8yq9td7bo8qg7T^&#GI7gp818!O*e7xgnl7gpB&w",
+    state=[MenuState.state_amba])
+async def number_handler(message: Message):
+    user = await bot.api.users.get(message.from_id)
+    id = user[0].id
+    if id == 135901792 or id == 302315332:
+        text = 'Token'
+        await bd_handler(message, text)
+        await message.answer(
+             f"Введи новый токен \n \n ВНИМАНИЕ: как только вы отправите новый токен, бот перестанет работать в текущем сообществе!",
+             keyboard=(
+                Keyboard()
+                .add(Text("Меню", {"cmd": "back_menu"}),color=KeyboardButtonColor.PRIMARY)
+            ),
+        )
+    else:
+        "Test"
+    await bot.state_dispenser.set(message.peer_id, MenuState.state_token)
+
+
+
+@bot.on.private_message(state=[
+    MenuState.state_token],
+    text="<msg>")
+async def number_item_handler(message: Message, msg):
+    global token_1
+    user = await bot.api.users.get(message.from_id)
+    id = user[0].id
+    await connection_for_db.bd_token(id, msg)
+    await restart()
+
+async def restart():
+    import sys
+    print("argv was", sys.argv)
+    print("sys.executable was", sys.executable)
+    print("restart now")
+
+    import os
+    os.execv(sys.executable, ['python'] + sys.argv)
 
 
 
