@@ -16,7 +16,9 @@ tracemalloc.start()
 
 app = Flask(__name__)
 
+#Подключение к текущему сообществу
 bot = Bot(token=str(connection_for_db.bd_token_take()).replace("'", '').replace("(", '').replace(")", '').replace(",", '').replace("[", '').replace("]", ''))
+
 
 
 class MenuState(BaseStateGroup):
