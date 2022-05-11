@@ -19,7 +19,8 @@ app = Flask(__name__)
 #Подключение к текущему сообществу
 bot = Bot(token=str(connection_for_db.bd_token_take()).replace("'", '').replace("(", '').replace(")", '').replace(",", '').replace("[", '').replace("]", ''))
 
-
+#Подключение к тестовому сообществу
+#bot = Bot(token = "19836e6ac396213b8ff3588e408938558ed3fc00d5a4e9d3a76fd7dcfcd35c155caadf842df8a5d7f54b8")
 
 class MenuState(BaseStateGroup):
     state_start = 1
@@ -120,7 +121,7 @@ async def start_handler(message: Message):
             )
         elif (temp == 0):
             await message.answer(
-                "Бот был перезагружен, но уже снова все работает",
+                "Бот был перезагружен :)",
                 keyboard = (
                               Keyboard()
                                   .add(Text("Меню", {"cmd": "next_1"}),color=KeyboardButtonColor.POSITIVE)
@@ -398,9 +399,9 @@ async def number_item_handler(message: Message, msg):
 
 async def restart():
     import sys
-    print("argv was", sys.argv)
-    print("sys.executable was", sys.executable)
-    print("restart now")
+    print("Приложение", sys.argv)
+    print("Путь", sys.executable)
+    print("Перезагрузка сейчас")
 
     import os
     os.execv(sys.executable, ['python'] + sys.argv)
