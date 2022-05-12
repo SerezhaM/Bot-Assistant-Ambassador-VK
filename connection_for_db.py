@@ -111,7 +111,7 @@ try:
         text_db = temp_msg
         cursor2.execute("SELECT link_name, university, info FROM ambassador WHERE city = '%s' order by name" % (text_db))
         table2 = cursor2.fetchall()
-        temp_table = (tabulate(table2, tablefmt="presto"))
+        temp_table = (tabulate(table2, tablefmt="plain"))
         return temp_table
 
     async def bd_number_check(temp_msg):
@@ -126,7 +126,7 @@ try:
         text_db = temp_msg
         cursor2.execute("SELECT link_name, info FROM ambassador WHERE number = '%s' order by name" % (text_db))
         table2 = cursor2.fetchall()
-        temp_table = (tabulate(table2, tablefmt="presto"))
+        temp_table = (tabulate(table2, tablefmt="plain"))
         return temp_table
 
     async def bd_all_event():
