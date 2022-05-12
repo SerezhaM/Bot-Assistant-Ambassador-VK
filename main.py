@@ -17,10 +17,10 @@ tracemalloc.start()
 app = Flask(__name__)
 
 #Подключение к текущему сообществу
-# bot = Bot(token=str(connection_for_db.bd_token_take()).replace("'", '').replace("(", '').replace(")", '').replace(",", '').replace("[", '').replace("]", ''))
+bot = Bot(token=str(connection_for_db.bd_token_take()).replace("'", '').replace("(", '').replace(")", '').replace(",", '').replace("[", '').replace("]", ''))
 
 #Подключение к тестовому сообществу
-bot = Bot(token = "19836e6ac396213b8ff3588e408938558ed3fc00d5a4e9d3a76fd7dcfcd35c155caadf842df8a5d7f54b8")
+# bot = Bot(token = "19836e6ac396213b8ff3588e408938558ed3fc00d5a4e9d3a76fd7dcfcd35c155caadf842df8a5d7f54b8")
 
 class MenuState(BaseStateGroup):
     state_start = 1
