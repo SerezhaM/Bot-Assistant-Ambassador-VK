@@ -20,7 +20,7 @@ app = Flask(__name__)
 bot = Bot(token=str(connection_for_db.bd_token_take()).replace("'", '').replace("(", '').replace(")", '').replace(",", '').replace("[", '').replace("]", ''))
 
 #Подключение к тестовому сообществу
-#bot = Bot(token = "19836e6ac396213b8ff3588e408938558ed3fc00d5a4e9d3a76fd7dcfcd35c155caadf842df8a5d7f54b8")
+# bot = Bot(token = "19836e6ac396213b8ff3588e408938558ed3fc00d5a4e9d3a76fd7dcfcd35c155caadf842df8a5d7f54b8")
 
 class MenuState(BaseStateGroup):
     state_start = 1
@@ -298,10 +298,12 @@ async def city_item_handler(message: Message, msg):
     id = user[0].id
     chk = await check_month(id)
     if chk == 1:
-        table_city = await connection_for_db.bd_city(msg)
-        if (table_city != 9999999999):
+        city = await connection_for_db.bd_city_check(msg)
+        city_without = str(city).replace("(", '').replace(")", '').replace(",", '').replace("'", '')
+        if (city_without is not None):
+            table_city = await connection_for_db.bd_city(msg)
             await message.answer(
-                f"{table_city}",
+                f"Показаны амбассадоры из города {city_without} \n \n {table_city}",
              keyboard=(
                 Keyboard()
                 .add(Text("Меню", {"cmd": "back_menu"}),color=KeyboardButtonColor.PRIMARY)
@@ -347,10 +349,12 @@ async def number_item_handler(message: Message, msg):
     if chk == 1:
         try:
             if (type(int(msg)) == int):
-                table_number = await connection_for_db.bd_number_check(msg)
-                if (table_number != 9999999999):
+                number = await connection_for_db.bd_number_check(msg)
+                number_without = str(number).replace("(", '').replace(")", '').replace(",", '')
+                if (number_without is not None):
+                    table_number = await connection_for_db.bd_number(msg)
                     await message.answer(
-                        f"{table_number}",
+                        f"Показаны амбассадоры набора №{number_without} \n \n {table_number}",
                         keyboard = (
                             Keyboard()
                                .add(Text("Меню", {"cmd": "back_menu"}),color=KeyboardButtonColor.PRIMARY)
@@ -601,7 +605,7 @@ async def number_item_handler(message: Message):
         await bd_handler(message, text)
         table_all_event = await connection_for_db.bd_all_event()
         await message.answer(
-            f"{table_all_event}",
+            f"♦ – online/offline \n 🔶 – online \n 🔷 – offline\n\n{table_all_event}",
             keyboard = (
                        Keyboard()
                            .add(Text("Меню", {"cmd": "back_menu"}),color=KeyboardButtonColor.PRIMARY)

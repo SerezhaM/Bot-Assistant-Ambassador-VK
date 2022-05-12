@@ -99,65 +99,69 @@ try:
         connection.commit()
         return 1
 
-    async def bd_city(temp_msg):
+    async def bd_city_check(temp_msg):
         cursor2 = connection.cursor()
         text_db = temp_msg
         cursor2.execute("SELECT city FROM ambassador WHERE city = '%s'" %(text_db))
         table = cursor2.fetchone()
-        if (table is not None):
-            cursor2.execute("SELECT link_name, city, university, info FROM ambassador WHERE city = '%s' order by name" %(text_db))
-            table2 = cursor2.fetchall()
-            temp_table = (tabulate(table2, tablefmt="presto"))
-            return temp_table
-        else:
-            return 9999999999
+        return table
+
+    async def bd_city(temp_msg):
+        cursor2 = connection.cursor()
+        text_db = temp_msg
+        cursor2.execute("SELECT link_name, university, info FROM ambassador WHERE city = '%s' order by name" % (text_db))
+        table2 = cursor2.fetchall()
+        temp_table = (tabulate(table2, tablefmt="presto"))
+        return temp_table
 
     async def bd_number_check(temp_msg):
         cursor2 = connection.cursor()
         text_db = temp_msg
         cursor2.execute("SELECT number FROM ambassador WHERE number = '%s'" %(text_db))
         table = cursor2.fetchone()
-        if (table is not None):
-            cursor2.execute("SELECT link_name, number, info FROM ambassador WHERE number = '%s' order by name" % (text_db))
-            table2 = cursor2.fetchall()
-            temp_table = (tabulate(table2, tablefmt="presto"))
-            return temp_table
-        else:
-            return 9999999999
+        return table
+
+    async def bd_number(temp_msg):
+        cursor2 = connection.cursor()
+        text_db = temp_msg
+        cursor2.execute("SELECT link_name, info FROM ambassador WHERE number = '%s' order by name" % (text_db))
+        table2 = cursor2.fetchall()
+        temp_table = (tabulate(table2, tablefmt="presto"))
+        return temp_table
 
     async def bd_all_event():
         cursor2 = connection.cursor()
-        cursor2.execute("SELECT event_name, event_category, guid.link_guid FROM event LEFT JOIN event_type as et ON et.type_code = event.event_type LEFT JOIN guid ON guid.guid_id = event.guid_id order by event_name")
+        cursor2.execute("SELECT event_name, guid.link_guid FROM event LEFT JOIN event_type as et ON et.type_code = event.event_type LEFT JOIN guid ON guid.guid_id = event.guid_id order by event_name")
         table = cursor2.fetchall()
-        temp_table = (tabulate(table, tablefmt="presto"))
-        return temp_table
+        table_1 = str(table).replace("[", '').replace("]", '').replace("'", '').replace("(", '').replace(")",'').replace(",", '\n')
+        return table_1
 
     async def bd_all_guid():
         cursor2 = connection.cursor()
         cursor2.execute("SELECT name_guid, link_guid FROM guid order by guid_id")
         table = cursor2.fetchall()
-        temp_table = (tabulate(table, tablefmt="presto"))
-        return temp_table
+        table_1 = str(table).replace("[", '').replace("]", '').replace("'", '').replace("(", '').replace(")", '').replace(",", '\n')
+        return table_1
 
     async def bd_online():
         cursor2 = connection.cursor()
         cursor2.execute("SELECT ev.event_name, guid.link_guid FROM event AS ev LEFT JOIN guid ON guid.guid_id = ev.guid_id WHERE event_category like 'online%' order by ev.event_name")
         table = cursor2.fetchall()
-        temp_table = (tabulate(table, tablefmt="presto"))
+        temp_table = str(table).replace("[", '').replace("]", '').replace("'", '').replace("(", '').replace(")",'').replace(",", '\n')
         return temp_table
 
     async def bd_offline():
         cursor2 = connection.cursor()
         cursor2.execute("SELECT ev.event_name, guid.link_guid FROM event AS ev LEFT JOIN guid ON guid.guid_id = ev.guid_id WHERE event_category like '%offline' order by ev.event_name")
         table = cursor2.fetchall()
-        temp_table = (tabulate(table, tablefmt="presto"))
+        temp_table = str(table).replace("[", '').replace("]", '').replace("'", '').replace("(", '').replace(")",'').replace(",", '\n')
         return temp_table
 
     async def bd_online_offline():
         cursor2 = connection.cursor()
         cursor2.execute("SELECT ev.event_name, guid.link_guid FROM event AS ev LEFT JOIN guid ON guid.guid_id = ev.guid_id WHERE event_category = 'online/offline' order by ev.event_name")
         table = cursor2.fetchall()
-        temp_table = (tabulate(table, tablefmt="presto"))
+        temp_table = str(table).replace("[", '').replace("]", '').replace("'", '').replace("(", '').replace(")",'').replace(",", '\n')
         return temp_table
 
     async def bd_type():
@@ -175,7 +179,7 @@ try:
         if (table is not None):
             cursor2.execute("SELECT ev.event_name, ev.event_category, ev.event_text, guid.link_guid FROM event AS ev LEFT JOIN guid ON guid.guid_id = ev.guid_id WHERE event_type = '%s' order by ev.event_name" %(text_db))
             table = cursor2.fetchall()
-            temp_table = (tabulate(table, tablefmt="presto"))
+            temp_table = str(table).replace("[", '').replace("]", '').replace("'", '').replace("(", '').replace(")",'').replace(",", '\n')
             return temp_table
         else:
             return 999999999999
@@ -220,7 +224,6 @@ try:
         cursor2 = connection.cursor()
         cursor2.execute("SELECT token_group FROM group_t order by max(token_time) over(partition by token_time) desc limit 1")
         table = cursor2.fetchall()
-        # print("BD: ", table)
         return table
 
     # Курсор для выполнения операций с базой данных
